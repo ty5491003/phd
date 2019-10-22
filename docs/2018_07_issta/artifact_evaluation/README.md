@@ -1,79 +1,56 @@
 # Compiler Fuzzing through Deep Learning: Artifact
 
-This directory contains the supporting artifact for our paper on compiler
-fuzzing through deep learning. It contains reduced-size data sets for evaluating
-our testcase generator, testcase harness, and differential tester. The full
-dataset is quite large (>200 GB uncompressed), and we are working on finding a
-method for sharing it with the community. The idea is that this directory
-contains minimal working examples which can be evaluated in a reasonable amount
-of time. All of our code is open source and has been developed with
-extensibility as a primary goal. Please see Section 4 of this document for
-more details.
+
+这个目录包含着ISSTA'18这篇论文的artiface supporting。
+包括用于评估我们生成器和测试组件的一个缩小规模的数据集，其完整数据集非常大（未压缩下>200 GB）。
+可以阅读本文件第四节获取更详细的说明。
 
 
 ## 1. Artifact Contents
 
- * [01_evaluate_generator](01_evaluate_generator.py): A demonstration of 
-   training a neural network model to generate programs.
+ * [01_evaluate_generator](01_evaluate_generator.py): 训练神经网络模型以生成程序的演示.
 
- * [02_evaluate_harness](02_evaluate_harness.py): A demonstration which executes
-   test cases on an OpenCL test bed.
+ * [02_evaluate_harness](02_evaluate_harness.py): 在OpenCL测试平台上执行测试用例的演示.
 
- * [03_evaluate_results](03_evaluate_results.py): A demonstration of our 
-   differential testing approach. The results from the prior demonstration are 
-   combined with our own data from the paper to perform differential testing.
+ * [03_evaluate_results](03_evaluate_results.py): 我们的差异测试方法的演示。先前演示的结果与我们自己的论文数据结合起来进行差异测试.
 
 
 ## 2. Installation
 
-Please see the top level [README.md](/README.md) file for instructions on how 
-to prepare the bazel build environment.
+参见Readme.md文件，使用babel来构建整个系统.
 
 
 ## 3. Evaluating the artifact
 
-
 ### 3.1. Evaluate the generator
-*(approximate runtime: 2 hours)*
+*(大约运行时间:2小时)*
 
-Evaluate the DeepSmith generator by running the following program:
-
+通过运行以下程序来评估DeepSmith生成器:
 ```sh
 $ bazel run //docs/2018_07_issta/artifact_evaluation:01_evaluate_generator
 ```
 
-The program uses a small OpenCL corpus of 1000 kernels randomly selected
-from our GitHub corpus, pre-processes the corpus, trains a model on the
-preprocessed corpus, and generates 1024 new OpenCL testcases.
+该程序使用一个从我们的GitHub语料库中随机选择的1000个内核的小型OpenCL语料库，对该语料库进行预处理，在预处理的语料库上训练模型，并生成1024个新的OpenCL测试用例。
 
-We have reduced the size of the corpus and network so that it takes around 2
-hours to train on a CPU. The model we used to generate the programs used in the
-review copy of our paper is much larger (512 nodes per layer rather than 256), 
-is trained on more data (30 million tokens instead of 4.5 million), and is 
-trained for longer (50 epochs rather than 20). As such, the quality of output
-of this small model is much lower, with very few syntactically correct programs
-being generated. 
+我们减小了语料库和网络的大小，因此在CPU上进行训练大约需要2个小时。 我们用于生成论文中所用程序的模型要大得多（每层512个节点，而不是256个节点），受更多数据训练（3000万令牌而不是450万令牌），并且受训时间更长（50个epoch，而不是20个epoch）。 因此，这种小模型的输出质量要低得多，生成的语法正确的程序很少。
 
-Training the model can be interrupted and resumed at any time. Once trained, the
-model does not need to be re-trained. The trained model is stored in 
+训练模型可以随时中断和恢复。 训练后，无需重新训练模型。 训练后的模型存储在：
 `/tmp/phd/docs/2018_07_issta/artifact_evaluation/clgen`.
 
-Generated programs are written to the
-directory `/tmp/phd/docs/2018_07_issta/artifact_evaluation/generated_kernels`. 
-Two Testcases are generated for each kernels, one single threaded, one 
-multi-threaded. Generated testcases are written to
+生成的程序被写入目录： 
+`/tmp/phd/docs/2018_07_issta/artifact_evaluation/generated_kernels`. 
+
+每个kernal生成两个测试用例，一个单线程，一个多线程。 生成的testcase被写入到：
 `/tmp/phd/docs/2018_07_issta/artifact_evaluation/generated_testcases`.
 
-#### 3.1.1. Extended Evaluation (optional)
+#### 3.1.1. 拓展评估 (可选)
 
-By changing the parameters of the model defined in the
-`//docs/2018_07_issta/artifact_evaluation/data/clgen.pbtxt`, you can evaluate
-the output of models with different architectures, trained for different amounts
-of time, etc. The schema for the file is defined in
+通过更改模型中定义的参数：
+`//docs/2018_07_issta/artifact_evaluation/data/clgen.pbtxt`，
+你可以评估不同结构和不同训练时间的模型的输出，文件的架构被定义在：
 `//deeplearning/deepsmith/proto/generator.proto`.
 
-You could also change the corpus by adding additional OpenCL files, removing
-files and training on only a subset, etc.
+你也可以通过增加额外的opencl文件或者删除文件来修改数据集。
 
 
 ### 3.2. Evaluate the harness
@@ -143,14 +120,11 @@ observe how that influences the classification of results.
 
 ## 4. Further Reading and References
 
-DeepSmith is currently undergoing a ground-up rewrite to support more languages
-and add new features, such as a distributing tests across multiple machines.
-The work-in-progress implementation can be found in:
+DeepSmith目前正在进行彻底的重写，以支持更多的语言并添加新功能，例如在多台计算机上分布测试。 正在进行的可以在以下位置找到:
 
     https://github.com/ChrisCummins/phd/tree/master/deeplearning/deepsmith
 
-The code we used for generating the data in the review copy of our paper is
-available at:
+在我们论文中用来生成数据的代码存放在：
 
     https://github.com/ChrisCummins/phd/tree/master/experimental/dsmith
 
